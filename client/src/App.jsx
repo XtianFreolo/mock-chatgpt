@@ -100,28 +100,37 @@ function App() {
     setMessages([]);
   };
 
-  // For now: frontend-only mock chat
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!messageInput.trim() || !user) return;
+    if (!messageInput.trim() || !user || !token) return;
 
     const content = messageInput.trim();
-
-    const userMessage = {
-      id: Date.now(),
-      role: "user",
-      content,
-    };
-
-    const botMessage = {
-      id: Date.now() + 1,
-      role: "assistant",
-      content: `You said: "${content}". (Mock reply, backend coming soon!)`,
-    };
-
-    setMessages((prev) => [...prev, userMessage, botMessage]);
     setMessageInput("");
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data.error || "Chat request failed");
+        return;
+      }
+
+      // data.messages = [userMsg, botMsg]
+      setMessages((prev) => [...prev, ...data.messages]);
+    } catch (err) {
+      console.error("Chat send error:", err);
+    }
   };
+
 
   return (
     <div className={styles.app}>
@@ -196,9 +205,7 @@ function App() {
               messages.map((m) => (
                 <div
                   key={m.id}
-                  className={
-                    m.role === "user" ? styles.userMessage : styles.botMessage
-                  }
+                  className={m.role === "user" ? styles.userMessage : styles.botMessage}
                 >
                   <strong>{m.role === "user" ? "You" : "Bot"}: </strong>
                   <span>{m.content}</span>
@@ -206,6 +213,7 @@ function App() {
               ))
             )}
           </div>
+
           <form className={styles.chatForm} onSubmit={handleSendMessage}>
             <input
               className={styles.chatInput}
