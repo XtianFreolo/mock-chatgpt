@@ -4,15 +4,9 @@ import app from "./app.js";
 import pool from "./db.js";
 
 describe("Auth API", () => {
-    // Clean tables before each test
     beforeEach(async () => {
-        // messages depends on users, so truncate messages first
         await pool.query("TRUNCATE messages RESTART IDENTITY CASCADE;");
         await pool.query("TRUNCATE users RESTART IDENTITY CASCADE;");
-    });
-
-    after(async () => {
-        await pool.end();
     });
 
     it("registers a new user", async () => {
