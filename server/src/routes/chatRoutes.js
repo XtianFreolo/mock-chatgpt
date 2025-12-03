@@ -4,7 +4,7 @@ import authRequired from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Simple mock "ChatGPT" reply generator
+// Simple mock "ChatGPT" reply generator; fake brain
 function generateMockReply(userMessage) {
     const trimmed = userMessage.trim();
 
@@ -20,7 +20,47 @@ function generateMockReply(userMessage) {
         return "Sure! You can ask me questions about this project, coding, or just send random text. I'm currently a rule-based mock bot.";
     }
 
-    return `You said: "${trimmed}". I'm just echoing back for now, but this pipeline is ready for a real AI later.`;
+    if (
+        lower.includes("football") ||
+        lower.includes("sit or start") ||
+        lower.includes("draft pick")
+    ) {
+        return (
+            "Look, im just a mockBot right now, bit Rice is a beast and Josh Allen is a Terrorist"
+        );
+    }
+
+    if (
+        lower.includes("taylor swift") ||
+        lower.includes("swiftie") ||
+        lower.includes("eras tour")
+    ) {
+        return (
+            "Ah, Taylor Swift 🎤.\n\n" +
+            "This mock bot cant browse the web, but in a real ChatGPT-style app, Ariana grande better tho"
+        );
+    }
+
+    if (
+        lower.includes("this project") ||
+        lower.includes("mock chatgpt") ||
+        lower.includes("how was this built")
+    ) {
+        return (
+            "This mock ChatGPT app is built with:\n" +
+            "- React + Vite on the frontend\n" +
+            "- Express + Node on the backend\n" +
+            "- PostgreSQL for storing users and messages\n" +
+            "- JWT for authentication and protected chat routes\n" +
+            "- Mocha/Chai + Supertest for backend tests\n\n" +
+            "It’s structured like a real ChatGPT-style app, just using simple rules instead of an actual LLM."
+        );
+    }
+
+    return (
+        `You said: "${trimmed}".\n` +
+        "I’m just echoing you right now, but this pipeline is ready for a smarter AI brain later."
+    );
 }
 
 // GET /api/chat/history - get all messages for logged-in user

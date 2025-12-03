@@ -62,7 +62,7 @@ function LoginPage() {
                 <button type="submit">Log In</button>
             </form>
 
-// redirect to register
+
             <p className={styles.loggedIn}>
                 Don&apos;t have an account?{" "}
                 <button
