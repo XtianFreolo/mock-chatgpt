@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 import styles from "./App.module.css";
+import { useAuth } from "./context/AuthContext.jsx";
 
 function App() {
+  const { user, token, setUser, setToken, logout, initialized } = useAuth();
+
   const [health, setHealth] = useState(null);
 
-
-  // Authentication state
+  // Auth form state
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const [authError, setAuthError] = useState("");
 
-  // Chat state MOCKUP
+  // Chat state
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState([]);
 
-
+  // Check API health on load
   useEffect(() => {
     const fetchHealth = async () => {
       try {
@@ -31,6 +31,35 @@ function App() {
     };
     fetchHealth();
   }, []);
+
+  // Load history when we have a token (e.g., on refresh)
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!token) {
+        setMessages([]);
+        return;
+      }
+      try {
+        const res = await fetch("/api/chat/history", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          console.error(data.error || "Failed to load history");
+          return;
+        }
+        setMessages(data.messages);
+      } catch (err) {
+        console.error("History error:", err);
+      }
+    };
+
+    if (initialized) {
+      loadHistory();
+    }
+  }, [token, initialized]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -58,6 +87,9 @@ function App() {
       setLoginEmail("");
       setLoginPassword("");
       setRegisterPassword("");
+
+      // Load history for new user (should be empty)
+      setMessages([]);
     } catch (err) {
       console.error(err);
       setAuthError("Something went wrong during registration");
@@ -88,6 +120,8 @@ function App() {
       setUser(data.user);
       setToken(data.token);
       setLoginPassword("");
+
+      // History will be loaded automatically by the useEffect when token changes
     } catch (err) {
       console.error(err);
       setAuthError("Something went wrong during login");
@@ -95,8 +129,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    setUser(null);
-    setToken(null);
+    logout();
     setMessages([]);
   };
 
@@ -124,13 +157,21 @@ function App() {
         return;
       }
 
-      // data.messages = [userMsg, botMsg]
       setMessages((prev) => [...prev, ...data.messages]);
     } catch (err) {
       console.error("Chat send error:", err);
     }
   };
 
+  if (!initialized) {
+    // While we're loading auth from localStorage
+    return (
+      <div className={styles.app}>
+        <h1>Mock ChatGPT</h1>
+        <p className={styles.health}>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.app}>
@@ -205,7 +246,9 @@ function App() {
               messages.map((m) => (
                 <div
                   key={m.id}
-                  className={m.role === "user" ? styles.userMessage : styles.botMessage}
+                  className={
+                    m.role === "user" ? styles.userMessage : styles.botMessage
+                  }
                 >
                   <strong>{m.role === "user" ? "You" : "Bot"}: </strong>
                   <span>{m.content}</span>
@@ -213,7 +256,6 @@ function App() {
               ))
             )}
           </div>
-
           <form className={styles.chatForm} onSubmit={handleSendMessage}>
             <input
               className={styles.chatInput}
