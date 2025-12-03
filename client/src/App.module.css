@@ -37,6 +37,28 @@
   filter: brightness(1.2);
 }
 
+.presetContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.presetButton {
+  border: 1px solid #1e293b;
+  background: #020617;
+  color: #e5e7eb;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.presetButton:hover {
+  background: #1e293b;
+}
+
+
 .container {
   display: flex;
   gap: 2rem;

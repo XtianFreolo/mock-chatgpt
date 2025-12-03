@@ -61,6 +61,18 @@ function LoginPage() {
                 />
                 <button type="submit">Log In</button>
             </form>
+
+// redirect to register
+            <p className={styles.loggedIn}>
+                Don&apos;t have an account?{" "}
+                <button
+                    type="button"
+                    className={styles.linkButton}
+                    onClick={() => navigate("/register")}
+                >
+                    Click here to register
+                </button>
+            </p>
         </div>
     );
 }

@@ -11,15 +11,18 @@ function App() {
   return (
     <div className={styles.app}>
       <Routes>
-        <Route path="/" element={<RegisterPage />} />
+        {/* Direct to Login*/}
+        <Route path="/" element={<LoginPage />} />
+        {/* Direct to Login*/}
         <Route path="/login" element={<LoginPage />} />
+        {/* Register page */}
+        <Route path="/register" element={<RegisterPage />} />
+        {/* Protected chat route */}
         <Route
           path="/chat"
-          element={
-            user ? <ChatPage /> : <Navigate to="/login" replace />
-          }
+          element={user ? <ChatPage /> : <Navigate to="/login" replace />}
         />
-        {/*Redirect*/}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

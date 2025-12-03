@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../App.module.css";
 import { useAuth } from "../context/AuthContext.jsx";
+
+const PRESET_PROMPTS = [
+    "Explain how this mock ChatGPT app is built.",
+    "Give me ideas to improve this project.",
+    "Help me debug a frontend bug.",
+    "Explain how JWT authentication works.",
+    "What are some good test cases for this app?",
+];
 
 function ChatPage() {
     const { user, token, logout } = useAuth();
@@ -11,14 +19,14 @@ function ChatPage() {
     const [messageInput, setMessageInput] = useState("");
     const [messages, setMessages] = useState([]);
 
-    // Redirect to login if not authenticated
+    const inputRef = useRef(null);
+
     useEffect(() => {
         if (!user || !token) {
             navigate("/login");
         }
     }, [user, token, navigate]);
 
-    // API health
     useEffect(() => {
         const fetchHealth = async () => {
             try {
@@ -32,7 +40,6 @@ function ChatPage() {
         fetchHealth();
     }, []);
 
-    // Load chat history
     useEffect(() => {
         const loadHistory = async () => {
             if (!token) {
@@ -89,6 +96,34 @@ function ChatPage() {
         }
     };
 
+    const handlePresetClick = async (prompt) => {
+        // focus input and send immediately
+        inputRef.current?.focus();
+        setMessageInput("");
+
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ content: prompt }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.error(data.error || "Chat request failed");
+                return;
+            }
+
+            setMessages((prev) => [...prev, ...data.messages]);
+        } catch (err) {
+            console.error("Chat send error:", err);
+        }
+    };
+
     const handleLogout = () => {
         logout();
         setMessages([]);
@@ -114,7 +149,25 @@ function ChatPage() {
             <div className={styles.container}>
                 <div className={styles.chatPanel}>
                     <h2>Chat</h2>
-                    <div className={styles.chatWindow}>
+
+                    {/* Preset prompts */}
+                    <div className={styles.presetContainer}>
+                        {PRESET_PROMPTS.map((p) => (
+                            <button
+                                key={p}
+                                type="button"
+                                className={styles.presetButton}
+                                onClick={() => handlePresetClick(p)}
+                            >
+                                {p}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div
+                        className={styles.chatWindow}
+                        onClick={() => inputRef.current?.focus()}
+                    >
                         {messages.length === 0 ? (
                             <p className={styles.placeholder}>
                                 Ask me something to start the mock chat!
@@ -135,6 +188,7 @@ function ChatPage() {
                     </div>
                     <form className={styles.chatForm} onSubmit={handleSendMessage}>
                         <input
+                            ref={inputRef}
                             className={styles.chatInput}
                             placeholder="Ask me anything..."
                             value={messageInput}
