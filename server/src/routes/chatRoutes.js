@@ -20,7 +20,7 @@ function generateMockReply(userMessage) {
     ) {
         return (
             "Look, I'm just a mock bot right now, but this is where you could plug in " +
-            "a real stats API. For now: Rice is a beast and Josh Allen is a menace on the field. 🏈"
+            "a real stats API. For now: Rice is the best and Josh Allen is a terrorist 🏈"
         );
     }
 
@@ -32,8 +32,7 @@ function generateMockReply(userMessage) {
     ) {
         return (
             "Ah, Taylor Swift 🎤.\n\n" +
-            "This mock bot can't browse the web, but in a real ChatGPT-style app you could " +
-            "pull tour dates, album info, and more from a proper data source."
+            "She aiight, but Ariana Grande is better."
         );
     }
 
