@@ -5,31 +5,26 @@ import authRequired from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Simple mock "ChatGPT" reply generator; fake brain
+// Simple mock "ChatGPT" reply generator; fake brain
 function generateMockReply(userMessage) {
     const trimmed = userMessage.trim();
+    const lower = trimmed.toLowerCase();
 
-    if (trimmed.toLowerCase().includes("hello")) {
-        return "Hi! I'm your mock ChatGPT. 😊 How can I help you today?";
-    }
+    // --- Topic-specific presets (check these first) ---
 
-    if (trimmed.endsWith("?")) {
-        return `That's a great question, shiiieeeeettt: "${trimmed}". If this were a real LLM, I'd give you a detailed answer. For now, I'm just a mock bot.`;
-    }
-
-    if (trimmed.toLowerCase().includes("help")) {
-        return "Sure! You can ask me questions about this project, coding, or just send random text. I'm currently a rule-based mock bot.";
-    }
-
+    // Football
     if (
         lower.includes("football") ||
         lower.includes("sit or start") ||
         lower.includes("draft pick")
     ) {
         return (
-            "Look, im just a mockBot right now, bit Rice is a beast and Josh Allen is a Terrorist"
+            "Look, I'm just a mock bot right now, but this is where you could plug in " +
+            "a real stats API. For now: Rice is a beast and Josh Allen is a menace on the field. 🏈"
         );
     }
 
+    // Taylor Swift
     if (
         lower.includes("taylor swift") ||
         lower.includes("swiftie") ||
@@ -37,10 +32,12 @@ function generateMockReply(userMessage) {
     ) {
         return (
             "Ah, Taylor Swift 🎤.\n\n" +
-            "This mock bot cant browse the web, but in a real ChatGPT-style app, Ariana grande better tho"
+            "This mock bot can't browse the web, but in a real ChatGPT-style app you could " +
+            "pull tour dates, album info, and more from a proper data source."
         );
     }
 
+    // Your project
     if (
         lower.includes("this project") ||
         lower.includes("mock chatgpt") ||
@@ -57,11 +54,27 @@ function generateMockReply(userMessage) {
         );
     }
 
+    // --- Generic conversational rules ---
+
+    if (lower.includes("hello") || lower.includes("hi")) {
+        return "Hi! I'm your mock ChatGPT. 😊 How can I help you today?";
+    }
+
+    if (trimmed.endsWith("?")) {
+        return `That's a great question: "${trimmed}". If this were a real LLM, I'd give you a detailed answer. For now, I'm just a mock bot.`;
+    }
+
+    if (lower.includes("help")) {
+        return "Sure! You can ask me questions about this project, coding, or just send random text. I'm currently a rule-based mock bot.";
+    }
+
+    // Fallback
     return (
         `You said: "${trimmed}".\n` +
         "I’m just echoing you right now, but this pipeline is ready for a smarter AI brain later."
     );
 }
+
 
 // GET /api/chat/history - get all messages for logged-in user
 router.get("/history", authRequired, async (req, res) => {
