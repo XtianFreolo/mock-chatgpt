@@ -205,3 +205,9 @@
   margin-bottom: 0.5rem;
   text-align: left;
 }
+
+.placeholder {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}

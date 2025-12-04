@@ -19,6 +19,9 @@ function ChatPage() {
     const [health, setHealth] = useState(null);
     const [messageInput, setMessageInput] = useState("");
     const [messages, setMessages] = useState([]);
+    const [isReplying, setIsReplying] = useState(false);
+
+
 
     const inputRef = useRef(null);
     const chatWindowRef = useRef(null);
@@ -81,6 +84,18 @@ function ChatPage() {
         const content = messageInput.trim();
         setMessageInput("");
 
+        // send user message now
+        const localUserMessage = {
+            id: `temp-${Date.now()}`,
+            role: "user",
+            content,
+            created_at: new Date().toISOString(),
+        };
+
+        setMessages((prev) => [...prev, localUserMessage]);
+        setIsReplying(true);
+
+
         let assistantContent = null;
 
         // AI prompt via puter.js
@@ -131,11 +146,15 @@ function ChatPage() {
                 console.error(data.error || "Chat request failed");
                 return;
             }
-
-            // Append the new messages
-            setMessages((prev) => [...prev, ...data.messages]);
+            // append only the bot reply (user msg already added)
+            const botMessage = data.messages.find((m) => m.role === "assistant");
+            if (botMessage) {
+                setMessages((prev) => [...prev, botMessage]);
+            }
         } catch (err) {
             console.error("Chat send error:", err);
+        } finally {
+            setIsReplying(false);
         }
     };
 
@@ -253,17 +272,23 @@ function ChatPage() {
                                 Ask me something to start the mock chat!
                             </p>
                         ) : (
-                            messages.map((m) => (
-                                <div
-                                    key={m.id}
-                                    className={
-                                        m.role === "user" ? styles.userMessage : styles.botMessage
-                                    }
-                                >
-                                    <strong>{m.role === "user" ? "You" : "Bot"}: </strong>
-                                    <span>{m.content}</span>
-                                </div>
-                            ))
+                            <>
+                                {messages.map((m) => (
+                                    <div
+                                        key={m.id}
+                                        className={
+                                            m.role === "user" ? styles.userMessage : styles.botMessage
+                                        }
+                                    >
+                                        <strong>{m.role === "user" ? "You" : "Bot"}: </strong>
+                                        <span>{m.content}</span>
+                                    </div>
+                                ))}
+
+                                {isReplying && (
+                                    <p className={styles.placeholder}> Hold on Im using my super duper AI brain...</p>
+                                )}
+                            </>
                         )}
                     </div>
 
