@@ -1,3 +1,4 @@
+/* global puter */
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../App.module.css";
@@ -80,14 +81,48 @@ function ChatPage() {
         const content = messageInput.trim();
         setMessageInput("");
 
+        let assistantContent = null;
+
+        // AI prompt via puter.js
         try {
+            if (window.puter && window.puter.ai && window.puter.ai.chat) {
+                const completion = await window.puter.ai.chat(content, {
+                    model: "gpt-5-nano", // model
+                });
+
+                // completion response
+                if (typeof completion === "string") {
+                    assistantContent = completion;
+                } else if (
+                    completion &&
+                    completion.message &&
+                    Array.isArray(completion.message.content) &&
+                    completion.message.content[0]?.text
+                ) {
+                    assistantContent = completion.message.content[0].text;
+                } else {
+                    assistantContent = String(completion);
+                }
+            } else {
+                console.warn("Puter.js not loaded; falling back to mock reply on backend.");
+            }
+        } catch (err) {
+            console.error("Puter AI error:", err);
+            //if none work we back at my boring replies
+        }
+
+        try {
+            // backend safety net
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ content }),
+                body: JSON.stringify({
+                    content,
+                    assistantContent,
+                }),
             });
 
             const data = await res.json();
@@ -97,6 +132,7 @@ function ChatPage() {
                 return;
             }
 
+            // Append the new messages
             setMessages((prev) => [...prev, ...data.messages]);
         } catch (err) {
             console.error("Chat send error:", err);

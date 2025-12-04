@@ -131,8 +131,13 @@ router.post("/", authRequired, async (req, res) => {
             [userId, trimmed]
         );
 
-        // Generate mock reply
-        const replyText = generateMockReply(trimmed);
+        // use AI if not my boring ol replies
+        let replyText;
+        if (assistantContent && assistantContent.trim()) {
+            replyText = assistantContent.trim();
+        } else {
+            replyText = generateMockReply(trimmed);
+        }
 
         // Save assistant message
         const botResult = await client.query(
