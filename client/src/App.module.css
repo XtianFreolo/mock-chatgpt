@@ -165,6 +165,33 @@
   cursor: pointer;
 }
 
+.chatHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.clearButton {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #1e293b;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.clearButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.clearButton:not(:disabled):hover {
+  background: #1e293b;
+}
+
+
 .logoutButton:hover {
   filter: brightness(1.1);
 }

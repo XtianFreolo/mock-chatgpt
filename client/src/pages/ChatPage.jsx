@@ -20,12 +20,19 @@ function ChatPage() {
     const [messages, setMessages] = useState([]);
 
     const inputRef = useRef(null);
+    const chatWindowRef = useRef(null);
 
     useEffect(() => {
         if (!user || !token) {
             navigate("/login");
         }
     }, [user, token, navigate]);
+
+    useEffect(() => {
+        if (chatWindowRef.current) {
+            chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     useEffect(() => {
         const fetchHealth = async () => {
@@ -124,6 +131,31 @@ function ChatPage() {
         }
     };
 
+    const handleClearChat = async () => {
+        if (!token) return;
+
+        try {
+            const res = await fetch("/api/chat/history", {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.error(data.error || "Failed to clear history");
+                return;
+            }
+
+            setMessages([]);
+        } catch (err) {
+            console.error("Clear chat error:", err);
+        }
+    };
+
+
     const handleLogout = () => {
         logout();
         setMessages([]);
@@ -148,7 +180,18 @@ function ChatPage() {
 
             <div className={styles.container}>
                 <div className={styles.chatPanel}>
-                    <h2>Chat</h2>
+                    {/* 🔹 Chat header + Clear button */}
+                    <div className={styles.chatHeaderRow}>
+                        <h2>Chat</h2>
+                        <button
+                            type="button"
+                            className={styles.clearButton}
+                            onClick={handleClearChat}
+                            disabled={messages.length === 0}
+                        >
+                            Clear chat
+                        </button>
+                    </div>
 
                     {/* Preset prompts */}
                     <div className={styles.presetContainer}>
@@ -165,6 +208,7 @@ function ChatPage() {
                     </div>
 
                     <div
+                        ref={chatWindowRef}
                         className={styles.chatWindow}
                         onClick={() => inputRef.current?.focus()}
                     >
@@ -186,6 +230,7 @@ function ChatPage() {
                             ))
                         )}
                     </div>
+
                     <form className={styles.chatForm} onSubmit={handleSendMessage}>
                         <input
                             ref={inputRef}

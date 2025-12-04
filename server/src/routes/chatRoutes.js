@@ -92,6 +92,21 @@ router.get("/history", authRequired, async (req, res) => {
     }
 });
 
+// DELETE /api/chat/history - delete all messages for logged-in user
+router.delete("/history", authRequired, async (req, res) => {
+    try {
+        await pool.query(
+            `DELETE FROM messages WHERE user_id = $1`,
+            [req.user.id]
+        );
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Chat history DELETE error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 // POST /api/chat - send a message, get mock reply
 router.post("/", authRequired, async (req, res) => {
     const { content } = req.body;
