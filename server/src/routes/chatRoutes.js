@@ -5,12 +5,12 @@ import authRequired from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Simple mock "ChatGPT" reply generator; fake brain
-// Simple mock "ChatGPT" reply generator; fake brain
+
 function generateMockReply(userMessage) {
     const trimmed = userMessage.trim();
     const lower = trimmed.toLowerCase();
 
-    // --- Topic-specific presets (check these first) ---
+
 
     // Football
     if (
@@ -19,8 +19,7 @@ function generateMockReply(userMessage) {
         lower.includes("draft pick")
     ) {
         return (
-            "Look, I'm just a mock bot right now, but this is where you could plug in " +
-            "a real stats API. For now: Rice is the best and Josh Allen is a terrorist 🏈"
+            "Look, I'm just a mock bot right now. but Rice is the best and Josh Allen is a terrorist"
         );
     }
 
@@ -31,7 +30,7 @@ function generateMockReply(userMessage) {
         lower.includes("eras tour")
     ) {
         return (
-            "Ah, Taylor Swift 🎤.\n\n" +
+            "Ah, Taylor Swift." +
             "She aiight, but Ariana Grande is better."
         );
     }
@@ -43,17 +42,17 @@ function generateMockReply(userMessage) {
         lower.includes("how was this built")
     ) {
         return (
-            "This mock ChatGPT app is built with:\n" +
-            "- React + Vite on the frontend\n" +
-            "- Express + Node on the backend\n" +
-            "- PostgreSQL for storing users and messages\n" +
-            "- JWT for authentication and protected chat routes\n" +
-            "- Mocha/Chai + Supertest for backend tests\n\n" +
+            "This mock ChatGPT app is built with:" +
+            "- React + Vite on the frontend" +
+            "- Express + Node on the backend" +
+            "- PostgreSQL for storing users and messages" +
+            "- JWT for authentication and protected chat routes" +
+            "- Mocha/Chai + Supertest for backend tests" +
             "It’s structured like a real ChatGPT-style app, just using simple rules instead of an actual LLM."
         );
     }
 
-    // --- Generic conversational rules ---
+
 
     if (lower.includes("hello") || lower.includes("hi")) {
         return "Hi! I'm your mock ChatGPT. 😊 How can I help you today?";
@@ -69,7 +68,7 @@ function generateMockReply(userMessage) {
 
     // Fallback
     return (
-        `You said: "${trimmed}".\n` +
+        `You said: "${trimmed}".` +
         "I’m just echoing you right now, but this pipeline is ready for a smarter AI brain later."
     );
 }
