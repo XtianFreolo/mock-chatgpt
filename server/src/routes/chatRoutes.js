@@ -109,7 +109,8 @@ router.delete("/history", authRequired, async (req, res) => {
 
 // POST /api/chat - send a message, get mock reply
 router.post("/", authRequired, async (req, res) => {
-    const { content } = req.body;
+
+    const { content, assistantContent } = req.body || {};
 
     if (!content || !content.trim()) {
         return res.status(400).json({ error: "Message content is required" });
@@ -131,11 +132,14 @@ router.post("/", authRequired, async (req, res) => {
             [userId, trimmed]
         );
 
-        // use AI if not my boring ol replies
+        // Decide assistant reply
         let replyText;
-        if (assistantContent && assistantContent.trim()) {
+
+        if (typeof assistantContent === "string" && assistantContent.trim().length > 0) {
+            // AI
             replyText = assistantContent.trim();
         } else {
+            // Otherwise fall back to mhy replies
             replyText = generateMockReply(trimmed);
         }
 
@@ -153,12 +157,19 @@ router.post("/", authRequired, async (req, res) => {
             messages: [userResult.rows[0], botResult.rows[0]],
         });
     } catch (err) {
-        await client.query("ROLLBACK");
+        // If all fails back to my replies
+        try {
+            await client.query("ROLLBACK");
+        } catch (rollbackErr) {
+            console.error("Rollback error:", rollbackErr);
+        }
+
         console.error("Chat POST error:", err);
         res.status(500).json({ error: "Server error" });
     } finally {
         client.release();
     }
 });
+
 
 export default router;
